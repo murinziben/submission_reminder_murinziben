@@ -1,88 +1,37 @@
 #!/bin/bash
 
 echo "Enter your name:"
-read user_name
+read username
 
-dir_name="submission_reminder_$user_name"
-
-mkdir -p "$dir_name"/{app,modules,assets,config}
-
-cat > "$dir_name/config/config.env" << 'EOF'
-# This is the config file
-ASSIGNMENT="Shell Navigation"
-DAYS_REMAINING=2
-EOF
-
-cat > "$dir_name/modules/functions.sh" << 'EOF'
-#!/bin/bash
-
-function check_submissions {
-    local submissions_file=$1
-    echo "Checking submissions in $submissions_file"
-    
-    while IFS=, read -r student assignment status; do
-        student=$(echo "$student" | xargs)
-        assignment=$(echo "$assignment" | xargs)
-        status=$(echo "$status" | xargs)
-        
-        if [[ "$assignment" == "$ASSIGNMENT" && "$status" == "not submitted" ]]; then
-            echo "Reminder: $student has not submitted the $ASSIGNMENT assignment!"
-        fi
-    done < <(tail -n +2 "$submissions_file")
-}
-EOF
-
-cat > "$dir_name/app/reminder.sh" << 'EOF'
-#!/bin/bash
-
-source ./config/config.env
-source ./modules/functions.sh
-
-submissions_file="./assets/submissions.txt"
-
-echo "Assignment: $ASSIGNMENT"
-echo "Days remaining to submit: $DAYS_REMAINING days"
-echo "--------------------------------------------"
-
-check_submissions $submissions_file
-EOF
-
-cat > "$dir_name/assets/submissions.txt" << 'EOF'
-student, assignment, submission status
-Chinemerem, Shell Navigation, not submitted
-Chiagoziem, Git, submitted
-Divine, Shell Navigation, not submitted
-Anissa, Shell Basics, submitted
-Michael, Shell Navigation, not submitted
-Sarah, Git, not submitted
-John, Shell Navigation, submitted
-Emma, Shell Basics, not submitted
-David, Shell Navigation, not submitted
-EOF
-
-cat > "$dir_name/startup.sh" << 'EOF'
-#!/bin/bash
-
-cd "$(dirname "$0")"
-
-if [ ! -f "config/config.env" ]; then
-    echo "Error: config.env not found"
-    exit 1
+if [[ -z "$username" ]]; then
+  echo "Name cannot be empty."
+  exit 1
 fi
 
-if [ ! -f "assets/submissions.txt" ]; then
-    echo "Error: submissions.txt not found"
-    exit 1
+APP_DIR="submission_reminder_${username}"
+if [[ -d "$APP_DIR" ]]; then
+  echo "Directory $APP_DIR already exists. Remove it or use a different name."
+  exit 1
 fi
+mkdir -p "$APP_DIR"/{config,app,modules,assets}
 
-echo "Starting Submission Reminder Application"
-echo "========================================"
+# Copy or create the files with provided contents (you will paste them manually into your GitHub project)
+cp config.env "$APP_DIR/config/config.env"
+cp reminder.sh "$APP_DIR/app/reminder.sh"
+cp functions.sh "$APP_DIR/modules/functions.sh"
+cp submissions.txt "$APP_DIR/assets/submissions.txt"
 
-./app/reminder.sh
-EOF
+# Add 5 more student records to test (append them manually or via script)
+echo -e "Kamanzi Alice,ID005,Not Submitted\nMugisha Eric,ID006,Submitted\nUwase Nina,ID007,Not Submitted\nHakizimana Jean,ID008,Not Submitted\nMukamana Lea,ID009,Submitted" >> "$APP_DIR/assets/submissions.txt"
+# Create the startup.sh file
+cat << 'EOL' > "$APP_DIR/startup.sh"
+#!/bin/bash
+source "$(dirname "$0")/modules/functions.sh"
+source "$(dirname "$0")/app/reminder.sh"
+EOL
 
-find "$dir_name" -name "*.sh" -exec chmod +x {} \;
+find "$APP_DIR" -type f -name "*.sh" -exec chmod +x {} \;
 
-echo "Environment created successfully in $dir_name"
-echo "To test the application, run:"
-echo "cd $dir_name && ./startup.sh"
+
+echo "Environment created in $APP_DIR."
+
