@@ -15,13 +15,13 @@ if [[ -d "$APP_DIR" ]]; then
 fi
 mkdir -p "$APP_DIR"/{config,app,modules,assets}
 
-# Copy or create the files with provided contents (you will paste them manually into your GitHub project)
+# Copy or create the files with provided contents 
 cp config.env "$APP_DIR/config/config.env"
 cp reminder.sh "$APP_DIR/app/reminder.sh"
 cp functions.sh "$APP_DIR/modules/functions.sh"
 cp submissions.txt "$APP_DIR/assets/submissions.txt"
 
-# Add 5 more student records to test (append them manually or via script)
+# Add 5 more student records to test
 echo -e "Kamanzi Alice,ID005,Not Submitted\nMugisha Eric,ID006,Submitted\nUwase Nina,ID007,Not Submitted\nHakizimana Jean,ID008,Not Submitted\nMukamana Lea,ID009,Submitted" >> "$APP_DIR/assets/submissions.txt"
 # Create the startup.sh file
 cat << 'EOL' > "$APP_DIR/startup.sh"
